@@ -1,10 +1,31 @@
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.HashSet;
 
 public class Server {
+
+    public static Message deserializeMessage(byte[] arr) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(arr);
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            return (Message) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] serializeReply(String reply) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(reply);
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static void main(String[] args) {
 
         System.out.println("The Server is up");
@@ -19,8 +40,64 @@ public class Server {
             while (true) {
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(request);
-                System.out.println(" Request: " + new String(request.getData(), 0, request.getLength()));
-                DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), request.getAddress(), request.getPort());
+
+                System.out.println(0);
+                Message message = deserializeMessage(request.getData());
+                message.print();
+
+                String replyString = "";
+
+                System.out.println(0.1);
+                if (message.getMethodName().equals(BasketMethods.ADD_ITEM)) {
+                    switch (message.getBasketName()) {
+                        case "Basket 1":
+                            basket1.addItemToBasket(message.getItemName(), message.getItemPrice(), message.getItemQuantity());
+                            replyString = "Succes";
+                            break;
+                        case "Basket 2":
+                            basket2.addItemToBasket(message.getItemName(), message.getItemPrice(), message.getItemQuantity());
+                            replyString = "Succes";
+                            break;
+                        case "Basket 3":
+                            basket3.addItemToBasket(message.getItemName(), message.getItemPrice(), message.getItemQuantity());
+                            replyString = "Succes";
+                            break;
+                        default:
+                            replyString = "Basket not found";
+                    }
+                } else if (message.getMethodName().equals(BasketMethods.GET_ALL_ITEMS)){
+                    System.out.println(1.1);
+                    switch (message.getBasketName()) {
+                        case "Basket 1":
+                            System.out.println(1);
+                            if (!basket1.getItems().isEmpty()) {
+                                System.out.println(2);
+                                for (ShoppingItem item : basket1.getItems()) {
+                                    replyString.concat(item.getName());
+                                    System.out.println(3);
+                                }
+                            }
+                            break;
+                        case "Basket 2":
+                            for (ShoppingItem item : basket2.getItems()) {
+                                replyString.concat(item.getName());
+                            }
+                            break;
+                        case "Basket 3":
+                            for (ShoppingItem item : basket3.getItems()) {
+                                replyString.concat(item.getName());
+                            }
+                            break;
+                        default:
+                            replyString = "No items";
+                    }
+                }
+
+                System.out.println(replyString);
+                byte[] replyByteArray = serializeReply(replyString);
+
+                //System.out.println(" Request: " + new String(request.getData(), 0, request.getLength()));
+                DatagramPacket reply = new DatagramPacket(replyByteArray,replyByteArray.length, request.getAddress(), request.getPort());
                 aSocket.send(reply);
 
             }
@@ -31,3 +108,4 @@ public class Server {
         }
     }
 }
+

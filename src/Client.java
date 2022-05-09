@@ -1,13 +1,13 @@
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 
 public class Client {
 
-    public static byte[] addShoppingItem(String name, int price, int quantity, String basketName, BasketMethods method) {
-        Message message = new Message(name, price, quantity, basketName, method);
+    public static byte[] addShoppingItem(String name, int price, int quantity, String basketName) {
+
+        Message message = new Message(name, price, quantity, basketName, BasketMethods.ADD_ITEM);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
@@ -19,21 +19,61 @@ public class Client {
         }
     }
 
+    public static byte[] getBasketItems(String basketName) {
+
+        Message message = new Message(basketName, BasketMethods.GET_ALL_ITEMS);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(message);
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String deserializeReply(byte[] reply) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(reply);
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            return (String) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static void main(String[] args) {
 
         try {
+            // Init
             DatagramSocket aSocket = new DatagramSocket();
-            byte[] m = addShoppingItem("Item1", 20, 30, "Basket 1", BasketMethods.ADD_ITEM);
             InetAddress aHost = InetAddress.getLocalHost();
             int serverPort = 6789;
-            DatagramPacket request = new DatagramPacket(m, m.length, aHost, serverPort);
-            aSocket.send(request);
 
-            byte[] buffer = new byte[1000];
-            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-            aSocket.receive(reply);
-            System.out.println(" Reply: " + new String(reply.getData()));
+            // Retrieving names of basket items
+            byte[] retrieveItemsCommand = getBasketItems("Basket 1");
+            DatagramPacket request2 = new DatagramPacket(retrieveItemsCommand, retrieveItemsCommand.length, aHost, serverPort);
+
+            byte[] buffer2 = new byte[1000];
+            DatagramPacket reply2 = new DatagramPacket(buffer2, buffer2.length);
+            aSocket.receive(reply2);
+            System.out.println(deserializeReply(reply2.getData()));
+
+
+            // Adding an item
+            byte[] addItemCommand = addShoppingItem("Item1", 20, 30, "Basket 1");
+            DatagramPacket request1 = new DatagramPacket(addItemCommand, addItemCommand.length, aHost, serverPort);
+            aSocket.send(request1);
+
+
+            byte[] buffer1 = new byte[1000];
+            DatagramPacket reply1 = new DatagramPacket(buffer1, buffer1.length);
+            aSocket.receive(reply1);
+            System.out.println(deserializeReply(reply1.getData()));
+
+            // Close Socket
             aSocket.close();
+
         } catch (SocketException e) {
             throw new RuntimeException(e);
         } catch (UnknownHostException e) {

@@ -15,4 +15,56 @@ public class Message implements Serializable {
         this.basketName = basketName;
         this.methodName = methodName;
     }
+
+    public Message(String basketName, BasketMethods methodName) {
+        this.itemName = "";
+        this.itemPrice = 0;
+        this.itemQuantity = 0;
+        this.basketName = basketName;
+        this.methodName = methodName;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public int getItemPrice() {
+        return itemPrice;
+    }
+
+    public void setItemPrice(int itemPrice) {
+        this.itemPrice = itemPrice;
+    }
+
+    public int getItemQuantity() {
+        return itemQuantity;
+    }
+
+    public void setItemQuantity(int itemQuantity) {
+        this.itemQuantity = itemQuantity;
+    }
+
+    public String getBasketName() {
+        return basketName;
+    }
+
+    public void setBasketName(String basketName) {
+        this.basketName = basketName;
+    }
+
+    public BasketMethods getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(BasketMethods methodName) {
+        this.methodName = methodName;
+    }
+
+    public void print() {
+        System.out.println(itemName + " / " + itemPrice + " / " + itemQuantity + " / " + basketName + " / " + methodName);
+    }
 }
