@@ -8,6 +8,7 @@ public class ShoppingBasket {
     public ShoppingBasket(String name, HashSet<ShoppingItem> items) {
         this.name = name;
         this.items = items;
+        items = new HashSet<ShoppingItem>();
     }
 
     public ShoppingItem searchItem(String itemName) {

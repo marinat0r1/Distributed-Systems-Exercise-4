@@ -41,13 +41,11 @@ public class Server {
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(request);
 
-                System.out.println(0);
                 Message message = deserializeMessage(request.getData());
                 message.print();
 
                 String replyString = "";
 
-                System.out.println(0.1);
                 if (message.getMethodName().equals(BasketMethods.ADD_ITEM)) {
                     switch (message.getBasketName()) {
                         case "Basket 1":
@@ -66,26 +64,20 @@ public class Server {
                             replyString = "Basket not found";
                     }
                 } else if (message.getMethodName().equals(BasketMethods.GET_ALL_ITEMS)){
-                    System.out.println(1.1);
                     switch (message.getBasketName()) {
                         case "Basket 1":
-                            System.out.println(1);
-                            if (!basket1.getItems().isEmpty()) {
-                                System.out.println(2);
-                                for (ShoppingItem item : basket1.getItems()) {
-                                    replyString.concat(item.getName());
-                                    System.out.println(3);
-                                }
+                            for (ShoppingItem item : basket1.getItems()) {
+                                replyString = replyString.concat(" " + item.getName());
                             }
                             break;
                         case "Basket 2":
                             for (ShoppingItem item : basket2.getItems()) {
-                                replyString.concat(item.getName());
+                                replyString.concat(" " + item.getName());
                             }
                             break;
                         case "Basket 3":
                             for (ShoppingItem item : basket3.getItems()) {
-                                replyString.concat(item.getName());
+                                replyString.concat(" " + item.getName());
                             }
                             break;
                         default:

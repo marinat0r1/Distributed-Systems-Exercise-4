@@ -50,26 +50,25 @@ public class Client {
             InetAddress aHost = InetAddress.getLocalHost();
             int serverPort = 6789;
 
-            // Retrieving names of basket items
-            byte[] retrieveItemsCommand = getBasketItems("Basket 1");
-            DatagramPacket request2 = new DatagramPacket(retrieveItemsCommand, retrieveItemsCommand.length, aHost, serverPort);
-
-            byte[] buffer2 = new byte[1000];
-            DatagramPacket reply2 = new DatagramPacket(buffer2, buffer2.length);
-            aSocket.receive(reply2);
-            System.out.println(deserializeReply(reply2.getData()));
-
-
             // Adding an item
             byte[] addItemCommand = addShoppingItem("Item1", 20, 30, "Basket 1");
             DatagramPacket request1 = new DatagramPacket(addItemCommand, addItemCommand.length, aHost, serverPort);
             aSocket.send(request1);
 
-
             byte[] buffer1 = new byte[1000];
             DatagramPacket reply1 = new DatagramPacket(buffer1, buffer1.length);
             aSocket.receive(reply1);
             System.out.println(deserializeReply(reply1.getData()));
+
+            // Retrieving names of basket items
+            byte[] retrieveItemsCommand = getBasketItems("Basket 1");
+            DatagramPacket request2 = new DatagramPacket(retrieveItemsCommand, retrieveItemsCommand.length, aHost, serverPort);
+            aSocket.send(request2);
+
+            byte[] buffer2 = new byte[1000];
+            DatagramPacket reply2 = new DatagramPacket(buffer2, buffer2.length);
+            aSocket.receive(reply2);
+            System.out.println(deserializeReply(reply2.getData()));
 
             // Close Socket
             aSocket.close();
