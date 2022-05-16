@@ -50,25 +50,16 @@ public class Client {
             InetAddress aHost = InetAddress.getLocalHost();
             int serverPort = 6789;
 
-            // Adding an item
-            byte[] addItemCommand = addShoppingItem("Item1", 20, 30, "Basket 1");
-            DatagramPacket request1 = new DatagramPacket(addItemCommand, addItemCommand.length, aHost, serverPort);
-            aSocket.send(request1);
+            // Adding two items
+            byte[] addItemCommand = addShoppingItem("Bottled Water", 2, 50, "Basket 1");
+            requestToServer(aSocket, aHost, serverPort, addItemCommand);
 
-            byte[] buffer1 = new byte[1000];
-            DatagramPacket reply1 = new DatagramPacket(buffer1, buffer1.length);
-            aSocket.receive(reply1);
-            System.out.println(deserializeReply(reply1.getData()));
+            byte[] addAnotherItemCommand = addShoppingItem("Coffee", 3, 40, "Basket 1");
+            requestToServer(aSocket, aHost, serverPort, addAnotherItemCommand);
 
             // Retrieving names of basket items
-            byte[] retrieveItemsCommand = getBasketItems("Basket 1");
-            DatagramPacket request2 = new DatagramPacket(retrieveItemsCommand, retrieveItemsCommand.length, aHost, serverPort);
-            aSocket.send(request2);
-
-            byte[] buffer2 = new byte[1000];
-            DatagramPacket reply2 = new DatagramPacket(buffer2, buffer2.length);
-            aSocket.receive(reply2);
-            System.out.println(deserializeReply(reply2.getData()));
+            byte[] retrieveItemsCommand = getBasketItems("Basket 2");
+            requestToServer(aSocket, aHost, serverPort, retrieveItemsCommand);
 
             // Close Socket
             aSocket.close();
@@ -80,5 +71,15 @@ public class Client {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void requestToServer(DatagramSocket aSocket, InetAddress aHost, int serverPort, byte[] addItemCommand) throws IOException {
+        DatagramPacket request1 = new DatagramPacket(addItemCommand, addItemCommand.length, aHost, serverPort);
+        aSocket.send(request1);
+
+        byte[] buffer1 = new byte[1000];
+        DatagramPacket reply1 = new DatagramPacket(buffer1, buffer1.length);
+        aSocket.receive(reply1);
+        System.out.println(deserializeReply(reply1.getData()));
     }
 }

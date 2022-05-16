@@ -42,7 +42,7 @@ public class Server {
                 aSocket.receive(request);
 
                 Message message = deserializeMessage(request.getData());
-                message.print();
+                //message.print();
 
                 String replyString = "";
 
@@ -50,15 +50,15 @@ public class Server {
                     switch (message.getBasketName()) {
                         case "Basket 1":
                             basket1.addItemToBasket(message.getItemName(), message.getItemPrice(), message.getItemQuantity());
-                            replyString = "Succes";
+                            replyString = "Successfully added Item to Basket 1";
                             break;
                         case "Basket 2":
                             basket2.addItemToBasket(message.getItemName(), message.getItemPrice(), message.getItemQuantity());
-                            replyString = "Succes";
+                            replyString = "Successfully added Item to Basket 2";
                             break;
                         case "Basket 3":
                             basket3.addItemToBasket(message.getItemName(), message.getItemPrice(), message.getItemQuantity());
-                            replyString = "Succes";
+                            replyString = "Successfully added Item to Basket 3";
                             break;
                         default:
                             replyString = "Basket not found";
